@@ -30,39 +30,49 @@ const toppings = [
   { topping_id: '5', text: 'Ham' },
 ]
 
+const sizeMapping = {
+  Small: "S",
+  Medium: "M",
+  Large: "L",
+}
+
 export default function Form() {
   const [fullName, setFullName] = useState('')
   const [size, setSize] = useState('')
   const [selectedToppings, setSelectedToppings] = useState([])
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
-  const [submitted, setSubmitted] = useState(false)
+  const [isValid, setIsValid] = useState(false)
+  const [touched, setTouched] = useState({fullName: false, size: false, toppings: false})
+
+  const sizes = ['Small', 'Medium', 'Large']
 
   useEffect(() => {
-    validateForm();
-  }, [fullName, size, selectedToppings])
-
-  const validateForm = () => {
-    try {
-      schema.validateSync({
-        fullName,
-        size,
-        toppings: selectedToppings,
-      })
-      setError('')
-      return true
-    } catch (err) {
-      setError(err.errors[0])
-      return false
+    const validateForm = async () => {
+      try {
+        await schema.validate({
+           fullName: fullName.trim(), 
+           size: sizeMapping[size], 
+           toppings: selectedToppings, 
+        })
+        setIsValid(true)
+      } catch (err) {
+        setIsValid(false)
+      }
     }
-  }
+    validateForm();
+  }, [fullName, size, selectedToppings]) 
 
   const handleInputChange = (e) => {
-    setFullName(e.target.value)
+    const value = e.target.value.trim()
+    setFullName(value)
+    setTouched({ ...touched, fullName: true })
   }
+  
   
   const handleSizeChange = (e) => {
     setSize(e.target.value)
+    setTouched({ ...touched, size: true })
   }
 
   const handleToppingChange = (e) => {
@@ -72,61 +82,66 @@ export default function Form() {
     } else {
       setSelectedToppings(selectedToppings.filter(topping => topping !== value))
     }
+    setTouched({ ...touched, toppings: true })
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('')
     setSuccessMessage('')
-    setSubmitted(true)
-
-    if (!validateForm()) return
     try {
       await schema.validate({
         fullName,
-        size,
+        size: sizeMapping[size],
         toppings: selectedToppings,
-      })
-  
+      }) 
+      const toppingIDs = selectedToppings.map(topping => {
+        const toppingObj = toppings.find(t => t.text === topping)
+        return toppingObj ? toppingObj.topping_id : null
+      }).filter(id => id !== null)
+
+      const abbreviatedSize = sizeMapping[size]
+
       const orderData = {
         fullName,
-        size,
-        toppings: selectedToppings,
+        size: abbreviatedSize,
+        toppings: toppingIDs,
       }
-      console.log('Order Data:', orderData)
-      console.log('Form State:', { fullName, size, selectedToppings });
   
-      const response = await axios.post('http://localhost:9009/api/order', orderData);
+      const response = await axios.post('http://localhost:9009/api/order', orderData)
       
-      if (response.status === 200) {
-        setSuccessMessage(`Thank you for your order, ${fullName}! Your ${size} pizza with ${selectedToppings.length} topping(s) is on the way.`)
+      if (response.status === 200 || response.status === 201) {
+        setSuccessMessage(response.data.message)
         setFullName('')
         setSize('')
         setSelectedToppings([])
+        setIsValid(false)
+        setTouched({ fullName: false, size: false, toppings: false })
       }
     } catch (err) {
-      if (err.name === 'ValidationError') {
-        setError(err.errors[0])
+      if (err.response && err.response.data) {
+        setError(err.response.data.message || 'Something went wrong. Please try again.')
       } else {
         setError('Something went wrong. Please try again.')
       }
+      setIsValid(false)
     }
+    
   }
 
   return (
     <form onSubmit={handleSubmit} >
       <h2>Order Your Pizza</h2>
-      {submitted && successMessage && <div className='success'>{successMessage}</div>}
-      {submitted && error && <div className='error'>{error}</div>}
+      {successMessage && <div className='success'>{successMessage}</div>}
+      {error && <div className='error'>{error}</div>}
 
       <div className="input-group">
         <div>
           <label htmlFor="fullName">Full Name</label><br />
           <input placeholder="Type full name" id="fullName" type="text" value={fullName} onChange={handleInputChange} />
         </div>
-          {submitted && !fullName && <div className='error'>Full name is required</div>}
-          {submitted && fullName.length < 3 && <div className='error'>{validationErrors.fullNameTooShort}</div>}
-          {submitted && fullName.length > 20 && <div className='error'>{validationErrors.fullNameTooLong}</div>}
+          {touched.fullName && fullName.length < 3 && <div className='error'>{validationErrors.fullNameTooShort}</div>}
+          {touched.fullName && fullName.length > 20 && <div className='error'>{validationErrors.fullNameTooLong}</div>}
       </div>
 
       <div className="input-group">
@@ -135,14 +150,13 @@ export default function Form() {
           <select id="size" value={size} onChange={handleSizeChange}>
             <option value="">----Choose Size----</option>
             {/* Fill out the missing options */}
-            <option value="S">Small</option>
-            <option value="M">Medium</option>
-            <option value="L">Large</option>
+            {sizes.map(size => (
+              <option key={size} value={size}>{size}</option>
+            ))}
           </select>
         </div>
-          {submitted && !size && <div className='error'>Size is required</div>}
-          {submitted && size && !['S', 'M', 'L'].includes(size) && <div className='error'>{validationErrors.sizeIncorrect}</div>}
-      </div>
+          {touched.size && !size && <div className='error'>{validationErrors.sizeIncorrect}</div>}
+        </div>
 
       <div className="input-group">
         {/* 👇 Maybe you could generate the checkboxes dynamically */}
@@ -158,12 +172,10 @@ export default function Form() {
           {topping.text}<br />
         </label>
         ))}
-          {submitted && selectedToppings.length === 0 && <div className='error'>At least one topping is required</div>}
+          {touched.toppings && selectedToppings.length === 0 && <div className='error'>At least one topping is required</div>}
       </div>
       {/* 👇 Make sure the submit stays disabled until the form validates! */}
-      <button type="submit" disabled={!fullName || !size || selectedToppings.length === 0}>
-      Submit Order
-      </button>
+      <input type="submit" disabled={!isValid} value="Submit"/>
     </form>
   )
 }

@@ -27,7 +27,6 @@ You have been given a take-home coding assessment as part of the hiring process 
 ### 💾 Setup
 
 **Here are the steps to set up this project:**
-
 1. **Clone this repository** to your computer.
 2. Within your terminal, navigate to the project folder **and execute `npm i`**.
 3. After successful installation **execute `npm run dev`**.

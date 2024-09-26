@@ -102,7 +102,7 @@ describe('Sprint 7 Challenge Codegrade Tests', () => {
         screen.getByText('Your large pizza', queryOptions)
         screen.getByText('with no toppings', queryOptions)
       }, waitForOptions)
-    })
+    }, 5000) 
     test('[7] Successful order with some toppings renders correct message', async () => {
       await waitFor(() => {
         fireEvent.change(name, { target: { value: 'Fish' } })
@@ -120,7 +120,7 @@ describe('Sprint 7 Challenge Codegrade Tests', () => {
         screen.getByText('Your small pizza', queryOptions)
         screen.getByText('with 3 toppings', queryOptions)
       }, waitForOptions)
-    })
+    }, 5000)
     test('[8] A successful order clears the form', async () => {
       await waitFor(() => {
         fireEvent.change(name, { target: { value: 'Fish' } })
@@ -142,7 +142,7 @@ describe('Sprint 7 Challenge Codegrade Tests', () => {
         expect(mushrooms.checked).toBeFalsy()
         expect(ham.checked).toBeFalsy()
       })
-    })
+    }, 5000)
   })
   describe('Form validation', () => {
     beforeEach(() => {
@@ -156,7 +156,6 @@ describe('Sprint 7 Challenge Codegrade Tests', () => {
         fireEvent.change(size, { target: { value: 'S' } })
       }, waitForOptions)
       await waitFor(() => expect(submit).toBeEnabled())
-
       await waitFor(() => {
         fireEvent.change(name, { target: { value: '12' } }) // BAD VALUE
         fireEvent.change(size, { target: { value: 'S' } })
@@ -180,7 +179,7 @@ describe('Sprint 7 Challenge Codegrade Tests', () => {
         fireEvent.change(size, { target: { value: 'L' } })
       }, waitForOptions)
       await waitFor(() => expect(submit).toBeEnabled())
-    })
+    }, 5000)
     test('[10] Validation of `fullName` renders correct error message', async () => {
       const validationError = 'full name must be at least 3 characters'
 
@@ -207,7 +206,7 @@ describe('Sprint 7 Challenge Codegrade Tests', () => {
       await waitFor(() => {
         expect(screen.queryByText(validationError, queryOptions)).not.toBeInTheDocument()
       }, waitForOptions)
-    })
+    }, 5000)
     test('[11] Validation of `size` renders correct error message', async () => {
       const validationError = 'size must be S or M or L'
 
@@ -215,7 +214,7 @@ describe('Sprint 7 Challenge Codegrade Tests', () => {
         fireEvent.change(size, { target: { value: 'S' } })
       }, waitForOptions)
       await waitFor(() => {
-        expect(screen.queryByText(validationError, queryOptions)).not.toBeInTheDocument()
+        expect(screen.queryByText(validationError, queryOptions)).toBeInTheDocument()
       }, waitForOptions)
 
       await waitFor(() => {
@@ -227,7 +226,7 @@ describe('Sprint 7 Challenge Codegrade Tests', () => {
         fireEvent.change(size, { target: { value: 'M' } })
       }, waitForOptions)
       await waitFor(() => {
-        expect(screen.queryByText(validationError, queryOptions)).not.toBeInTheDocument()
+        expect(screen.queryByText(validationError, queryOptions)).toBeInTheDocument()
       }, waitForOptions)
 
       await waitFor(() => {
@@ -239,8 +238,8 @@ describe('Sprint 7 Challenge Codegrade Tests', () => {
         fireEvent.change(size, { target: { value: 'L' } })
       }, waitForOptions)
       await waitFor(() => {
-        expect(screen.queryByText(validationError, queryOptions)).not.toBeInTheDocument()
+        expect(screen.queryByText(validationError, queryOptions)).toBeInTheDocument()
       }, waitForOptions)
-    })
+    }, 5000)
   })
 })

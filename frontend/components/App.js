@@ -16,8 +16,6 @@ function App() {
         <Route path='/' element={<Home />} />
         <Route path='/order' element={<Form />} />
       </Routes>
-      <Home />
-      <Form />
     </div>
   )
 }
