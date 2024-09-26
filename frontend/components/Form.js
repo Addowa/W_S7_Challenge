@@ -52,8 +52,8 @@ export default function Form() {
       try {
         await schema.validate({
            fullName: fullName.trim(), 
-           size: sizeMapping[size], 
-           toppings: selectedToppings, 
+           size: sizeMapping[size],
+           toppings: selectedToppings.length > 0 ? selectedToppings: [], 
         })
         setIsValid(true)
       } catch (err) {
@@ -93,7 +93,7 @@ export default function Form() {
       await schema.validate({
         fullName,
         size: sizeMapping[size],
-        toppings: selectedToppings,
+        toppings: selectedToppings.length > 0 ? selectedToppings: [],
       }) 
       const toppingIDs = selectedToppings.map(topping => {
         const toppingObj = toppings.find(t => t.text === topping)
@@ -172,7 +172,6 @@ export default function Form() {
           {topping.text}<br />
         </label>
         ))}
-          {touched.toppings && selectedToppings.length === 0 && <div className='error'>At least one topping is required</div>}
       </div>
       {/* 👇 Make sure the submit stays disabled until the form validates! */}
       <input type="submit" disabled={!isValid} value="Submit"/>
