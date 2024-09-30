@@ -18,7 +18,7 @@ const schema = Yup.object().shape({
   size: Yup.string()
     .oneOf(['S', 'M', 'L'], validationErrors.sizeIncorrect)
     .required('Size is required'),
-  toppings: Yup.array().of(Yup.string()).required('At least one topping is required'),
+  toppings: Yup.array().of(Yup.string()),
 })
 
 // 👇 This array could help you construct your checkboxes using .map in the JSX.
@@ -107,15 +107,15 @@ export default function Form() {
         size: abbreviatedSize,
         toppings: toppingIDs,
       }
-  
+
       const response = await axios.post('http://localhost:9009/api/order', orderData)
-      
+
       if (response.status === 200 || response.status === 201) {
         setSuccessMessage(response.data.message)
         setFullName('')
         setSize('')
         setSelectedToppings([])
-        setIsValid(false)
+        setIsValid(true)
         setTouched({ fullName: false, size: false, toppings: false })
       }
     } catch (err) {
@@ -174,7 +174,7 @@ export default function Form() {
         ))}
       </div>
       {/* 👇 Make sure the submit stays disabled until the form validates! */}
-      <input type="submit" disabled={!isValid} value="Submit"/>
+      <input type="submit" value="Submit" disabled={!isValid} />
     </form>
   )
 }
