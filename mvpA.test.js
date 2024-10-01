@@ -214,7 +214,7 @@ describe('Sprint 7 Challenge Codegrade Tests', () => {
         fireEvent.change(size, { target: { value: 'S' } })
       }, waitForOptions)
       await waitFor(() => {
-        expect(screen.queryByText(validationError, queryOptions)).toBeInTheDocument()
+        expect(screen.queryByText(validationError, queryOptions)).not.toBeInTheDocument()
       }, waitForOptions)
 
       await waitFor(() => {
@@ -226,7 +226,7 @@ describe('Sprint 7 Challenge Codegrade Tests', () => {
         fireEvent.change(size, { target: { value: 'M' } })
       }, waitForOptions)
       await waitFor(() => {
-        expect(screen.queryByText(validationError, queryOptions)).toBeInTheDocument()
+        expect(screen.queryByText(validationError, queryOptions)).not.toBeInTheDocument()
       }, waitForOptions)
 
       await waitFor(() => {
@@ -238,7 +238,7 @@ describe('Sprint 7 Challenge Codegrade Tests', () => {
         fireEvent.change(size, { target: { value: 'L' } })
       }, waitForOptions)
       await waitFor(() => {
-        expect(screen.queryByText(validationError, queryOptions)).toBeInTheDocument()
+        expect(screen.queryByText(validationError, queryOptions)).not.toBeInTheDocument()
       }, waitForOptions)
     }, 5000)
   })

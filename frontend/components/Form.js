@@ -14,11 +14,11 @@ const schema = Yup.object().shape({
   fullName: Yup.string()
     .min(3, validationErrors.fullNameTooShort)
     .max(20, validationErrors.fullNameTooLong)
-    .required('Full name is required'),
+    .required('Full name is required').nullable(),
   size: Yup.string()
     .oneOf(['S', 'M', 'L'], validationErrors.sizeIncorrect)
     .required('Size is required'),
-  toppings: Yup.array().of(Yup.string()),
+  toppings: Yup.array().of(Yup.string()).nullable(),
 })
 
 // 👇 This array could help you construct your checkboxes using .map in the JSX.
@@ -33,7 +33,7 @@ const toppings = [
 const sizeMapping = {
   Small: "S",
   Medium: "M",
-  Large: "L",
+  Large:"L",
 }
 
 export default function Form() {
@@ -45,14 +45,12 @@ export default function Form() {
   const [isValid, setIsValid] = useState(false)
   const [touched, setTouched] = useState({fullName: false, size: false, toppings: false})
 
-  const sizes = ['Small', 'Medium', 'Large']
-
   useEffect(() => {
     const validateForm = async () => {
       try {
         await schema.validate({
            fullName: fullName.trim(), 
-           size: sizeMapping[size],
+           size: size,
            toppings: selectedToppings.length > 0 ? selectedToppings: [], 
         })
         setIsValid(true)
@@ -92,7 +90,7 @@ export default function Form() {
     try {
       await schema.validate({
         fullName,
-        size: sizeMapping[size],
+        size: size,
         toppings: selectedToppings.length > 0 ? selectedToppings: [],
       }) 
       const toppingIDs = selectedToppings.map(topping => {
@@ -100,11 +98,9 @@ export default function Form() {
         return toppingObj ? toppingObj.topping_id : null
       }).filter(id => id !== null)
 
-      const abbreviatedSize = sizeMapping[size]
-
       const orderData = {
         fullName,
-        size: abbreviatedSize,
+        size,
         toppings: toppingIDs,
       }
 
@@ -150,9 +146,9 @@ export default function Form() {
           <select id="size" value={size} onChange={handleSizeChange}>
             <option value="">----Choose Size----</option>
             {/* Fill out the missing options */}
-            {sizes.map(size => (
-              <option key={size} value={size}>{size}</option>
-            ))}
+            <option value="S">Small</option>
+            <option value="M">Medium</option>
+            <option value="L">Large</option>
           </select>
         </div>
           {touched.size && !size && <div className='error'>{validationErrors.sizeIncorrect}</div>}
